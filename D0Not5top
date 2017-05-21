@@ -76,3 +76,113 @@ root@darkmatter:~# nc 192.168.114.212 25
 root@darkmatter:~# echo "46 4c 34 36 5f 33 3a 32 396472796 63637756 8656874 327231646434 717070756 5793437 347 3767879610a" | xxd -r -ps
 FL46_3:29dryf67uheht2r1dd4qppuey474svxya -->> Flag 3
 
+-------------------------
+******* Web Server*******
+-------------------------
+
+# Generic troll home page was set. Decided to check /robots.txt and found some interesting comments:
+User-agent: *
+Disallow: /games
+Disallow: /dropbox
+Disallow: /contact
+Disallow: /blog/wp-login.php
+Disallow: /blog/wp-admin
+Disallow: /search
+Disallow: /support/search.php
+Disallow: /extend/plugins/search.php
+Disallow: /plugins/search.php
+Disallow: /extend/themes/search.php
+Disallow: /themes/search.php
+Disallow: /support/rss
+Disallow: /archive/
+Disallow: /wp-admin/
+Disallow: /wp-content/
+Disallow: /wp-includes/
+Disallow: /comment-page-
+Disallow: /trackback/
+Disallow: /xmlrpc.php
+Disallow: /blackhole/
+Disallow: /mint/
+Disallow: /feed/
+Allow: /tag/mint/
+Allow: /tag/feed/
+Allow: /wp-content/images/
+Allow: /wp-content/online/
+
+# terminal knows where to go.
+User-agent: GameTerminal
+Disallow:
+
+#Attempted with User-Agent GameTerminal and was swatted down.
+# Found WordPress contents and after exploring, it was yet another troll with blank pages. :(
+
+------------------------
+****** WFUZZ/DIRB ******
+------------------------
+
+root@darkmatter:~# wfuzz -c -w /usr/share/wfuzz/wordlist/general/common.txt --hc 404 192.168.114.212/FUZZ
+********************************************************
+* Wfuzz 2.1.3 - The Web Bruteforcer                      *
+********************************************************
+
+Target: http://192.168.114.212/FUZZ
+Total requests: 950
+
+==================================================================
+ID	Response   Lines      Word         Chars          Request    
+==================================================================
+
+00060:  C=301      7 L	      20 W	    239 Ch	  "archive"
+00085:  C=301      7 L	      20 W	    236 Ch	  "blog"
+00176:  C=301      7 L	      20 W	    239 Ch	  "contact"
+00179:  C=301      7 L	      20 W	    239 Ch	  "control"
+00332:  C=301      7 L	      20 W	    237 Ch	  "games"
+00469:  C=301      7 L	      20 W	    238 Ch	  "manual"
+00597:  C=301      7 L	      20 W	    242 Ch	  "phpmyadmin"
+00680:  C=301      7 L	      20 W	    238 Ch	  "search"
+00762:  C=301      7 L	      20 W	    239 Ch	  "support"
+00773:  C=301      7 L	      20 W	    235 Ch	  "tag"
+
+Total time: 0.691926
+Processed Requests: 950
+Filtered Requests: 940
+Requests/sec.: 1372.977
+
+root@darkmatter:~# wfuzz -c -w /usr/share/secLists/SecLists-master/Discovery/Web_Content/common.txt -R 3 --sc 200 192.168.114.212/FUZZ
+********************************************************
+* Wfuzz 2.1.3 - The Web Bruteforcer                      *
+********************************************************
+
+Target: http://192.168.114.212/FUZZ
+Total requests: 4593
+
+==================================================================
+ID	Response   Lines      Word         Chars          Request    
+==================================================================
+
+02109:  C=200      8 L	      21 W	    211 Ch	  "index.html"
+03450:  C=200     31 L	      63 W	    695 Ch	  "robots.txt"
+06644:  C=200      0 L	       0 W	      0 Ch	  "contact - index.php"
+09355:  C=200    202 L	    1582 W	  11336 Ch	  "control - LICENSE"
+11230:  C=200    186 L	     476 W	   6814 Ch	  "control - index.html"
+15984:  C=200      0 L	       0 W	      0 Ch	  "archive - index.php"
+20417:  C=200      0 L	       0 W	      0 Ch	  "tag - index.php"
+25009:  C=200      0 L	       0 W	      0 Ch	  "blog - index.php"
+29641:  C=200      0 L	       0 W	      0 Ch	  "themes - index.php"
+34187:  C=200      0 L	       0 W	      0 Ch	  "xmlrpc.php - index.php"
+38802:  C=200      0 L	       0 W	      0 Ch	  "wp-includes - index.php"
+43381:  C=200      0 L	       0 W	      0 Ch	  "support - index.php"
+47977:  C=200      0 L	       0 W	      0 Ch	  "wp-content - index.php"
+52593:  C=200      0 L	       0 W	      0 Ch	  "wp-admin - index.php"
+57178:  C=200      0 L	       0 W	      0 Ch	  "feed - index.php"
+61749:  C=200      0 L	       0 W	      0 Ch	  "plugins - index.php"
+66347:  C=200      0 L	       0 W	      0 Ch	  "search - index.php"
+71002:  C=200     12 L	      26 W	    626 Ch	  "manual - index.html"
+75568:  C=200   1062 L	    7783 W	  154472 Ch	  "phpmyadmin - index.html"
+80133:  C=200      0 L	       0 W	      0 Ch	  "trackback - index.php"
+
+# Found a useful page under /control/index.html -> dashboard for a DNS Control Panel
+# None of the widgets or links are useful. Looking at the page source, we find another flag!
+
+<!-- FL46_1:urh8fu3i039rfoy254sx2xtrs5wc6767w -->
+
